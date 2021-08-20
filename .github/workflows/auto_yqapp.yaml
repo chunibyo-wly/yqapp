@@ -22,4 +22,4 @@ jobs:
           sudo apt install tesseract-ocr
           sudo apt install libtesseract-dev
           pip install -r requirements.txt
-          python main.py
+          python main.py ${{ secrets.CUG }}
