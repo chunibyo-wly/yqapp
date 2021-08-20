@@ -3,7 +3,7 @@ name: auto_yqapp
 on:
   push:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 */4 * * *"
 
 jobs:
   build:
