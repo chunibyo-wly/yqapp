@@ -26,6 +26,7 @@ class yqapp:
         self.chrome_options.add_argument('--disable-gpu')
         self.chrome_options.add_argument('--incognito')
         self.driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=self.chrome_options)
+        self.driver.set_page_load_timeout(120)
         self.wait = WebDriverWait(self.driver, timeout=10)
 
         self.cookies = ""
