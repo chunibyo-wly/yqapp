@@ -52,7 +52,7 @@ class yqapp:
         # self.driver.find_element_by_id('index_login_btn').click()
 
     def check_login(self):
-        self.driver.implicitly_wait(10)
+        self.driver.implicitly_wait(60)
         try:
             element = self.driver.find_element_by_id('errormsg')
         except Exception:
@@ -73,20 +73,71 @@ class yqapp:
         # 早上
         self.driver.find_element(By.CSS_SELECTOR, ".sdys_div:nth-child(2)").click()
 
-        # 本人健康状态
-        self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".emapm-item:nth-child(2)")))
+        # Step 1: 本人健康状态
+        element = (By.XPATH, "//a[contains(.,'本人健康状态')]")
+        self.wait.until(EC.presence_of_element_located(element))
+        self.driver.find_element(*element).click()
+
+        element = (By.XPATH, "//div[@class='emapm-item'][2]//label[contains(.,'正常')]")
+        self.wait.until(EC.presence_of_element_located(element))
+        self.driver.find_element(*element).click()
+
+        element = (By.XPATH, "//div[@class='emapm-item'][2]//button[contains(.,'返回')]")
         try:
-            self.driver.find_element(By.CSS_SELECTOR, ".emapm-item:nth-child(2)").click()
+            self.driver.find_element(*element).click()
         except Exception:
             pass
+        # Step 1: 本人健康状态
 
-        self.driver.find_element(By.CSS_SELECTOR, ".mint-cell:nth-child(1) .mint-radiobox-row").click()
+        # Step 2: 体温
+        element = (By.XPATH, "//a[contains(.,'体温')]")
+        self.wait.until(EC.presence_of_element_located(element))
+        self.driver.find_element(*element).click()
 
+        element = (By.XPATH, "//div[@class='emapm-item'][3]//label[contains(.,'否')]")
+        self.wait.until(EC.presence_of_element_located(element))
+        self.driver.find_element(*element).click()
+
+        element = (By.XPATH, "//div[@class='emapm-item'][3]//button[contains(.,'返回')]")
         try:
-            self.driver.find_element(By.CSS_SELECTOR, ".emapm-item:nth-child(2) .mint-button").click()
+            self.driver.find_element(*element).click()
         except Exception:
             pass
-        # 本人健康状态
+        # Step 2: 体温
+
+        # Step 3: 家庭成员
+        element = (By.XPATH, "//a[contains(.,'家庭成员')]")
+        self.wait.until(EC.presence_of_element_located(element))
+        self.driver.find_element(*element).click()
+
+        element = (By.XPATH, "//div[@class='emapm-item'][6]//label[contains(.,'正常')]")
+        self.wait.until(EC.presence_of_element_located(element))
+        self.driver.find_element(*element).click()
+
+        element = (By.XPATH, "//div[@class='emapm-item'][6]//button[contains(.,'返回')]")
+        try:
+            self.driver.find_element(*element).click()
+        except Exception:
+            pass
+        # Step 3: 家庭成员
+
+        # Step 4: 心理状况
+        element = (By.XPATH, "//a[contains(.,'心理状况')]")
+        self.wait.until(EC.presence_of_element_located(element))
+        self.driver.find_element(*element).click()
+
+        element = (By.XPATH, "//div[@class='emapm-item'][7]//label[contains(.,'无')]")
+        self.wait.until(EC.presence_of_element_located(element))
+        self.driver.find_element(*element).click()
+
+        element = (By.XPATH, "//div[@class='emapm-item'][7]//button[contains(.,'返回')]")
+        try:
+            self.driver.find_element(*element).click()
+        except Exception:
+            pass
+        # Step 4: 心理状况
+
+        time.sleep(60)
 
     def _get_captcha(self):
         # 在同一个session内刷新验证码，使其可以被request捕获
