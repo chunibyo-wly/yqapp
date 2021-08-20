@@ -1,13 +1,20 @@
 import io
+import sys
+
 import pytesseract
 import requests
 from PIL import Image
 from selenium import webdriver
-from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 class yqapp:
-    def __init__(self):
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
         # 第三方登录页面
         self.login_url = r"http://rsfw.cug.edu.cn/amp-auth-adapter/login?service=http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/*default/index.do"
         self.captcha_url = r"http://sfrz.cug.edu.cn/tpass/code"
@@ -15,19 +22,40 @@ class yqapp:
         # 创建chrome启动选项
         self.chrome_options = webdriver.ChromeOptions()
         # 指定chrome启动类型为headless 并且禁用gpu
-        self.chrome_options.add_argument('--headless')
+        # self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--disable-gpu')
+        self.chrome_options.add_argument('--incognito')
         self.driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=self.chrome_options)
 
         self.cookies = ""
+        self.screenshot_number = 0
+
+    def screenshot(self):
+        self.screenshot_number = self.screenshot_number + 1
+        self.driver.save_screenshot('screenshot{}.png'.format(self.screenshot_number))
 
     def login(self):
         wait = WebDriverWait(self.driver, timeout=10)
         self.driver.get(self.login_url)
+        self.driver.maximize_window()
+        self.screenshot()
 
         self.cookies = self.driver.get_cookies()
         captcha = self._get_captcha()
         print(captcha)
+
+        self.driver.find_element_by_id('un').send_keys(self.username)
+        self.driver.find_element_by_id('pd').send_keys(self.password)
+        # send keys 默认具有回车事件，网页自动提交了表单，所以寻找按钮是永远找不到的
+        self.driver.find_element_by_id('code').send_keys(captcha)
+        # self.driver.find_element_by_id('index_login_btn').click()
+
+        self.driver.implicitly_wait(60)
+        print(self.driver.page_source)
+        wait.until(
+            EC.text_to_be_present_in_element((By.ID, 'app'), '每日打卡')
+        )
+        self.screenshot()
 
     def _get_captcha(self):
         # 在同一个session内刷新验证码，使其可以被request捕获
@@ -100,8 +128,9 @@ class yqapp:
 
 
 def main():
-    yq = yqapp()
+    yq = yqapp(sys.argv[1], sys.argv[2])
     yq.login()
+    yq.close()
 
 
 if __name__ == "__main__":
