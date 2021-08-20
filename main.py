@@ -128,9 +128,15 @@ class yqapp:
 
 
 def main():
-    yq = yqapp(sys.argv[1], sys.argv[2])
-    yq.login()
-    yq.close()
+    # yq = yqapp(sys.argv[1], sys.argv[2])
+    # yq.login()
+    # if not yq.check_login():
+    #     yq.login()
+    #     if not yq.check_login():
+    #         exit(-1)
+    # yq.clock_in()
+    # yq.close()
+    exit(-1)
 
 
 if __name__ == "__main__":
