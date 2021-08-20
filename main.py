@@ -1,5 +1,6 @@
 import io
 import sys
+import time
 
 import pytesseract
 import requests
@@ -22,10 +23,11 @@ class yqapp:
         # 创建chrome启动选项
         self.chrome_options = webdriver.ChromeOptions()
         # 指定chrome启动类型为headless 并且禁用gpu
-        self.chrome_options.add_argument('--headless')
+        # self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--disable-gpu')
         self.chrome_options.add_argument('--incognito')
         self.driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=self.chrome_options)
+        self.wait = WebDriverWait(self.driver, timeout=10)
 
         self.cookies = ""
         self.screenshot_number = 0
@@ -35,7 +37,6 @@ class yqapp:
         self.driver.save_screenshot('screenshot{}.png'.format(self.screenshot_number))
 
     def login(self):
-        wait = WebDriverWait(self.driver, timeout=10)
         self.driver.get(self.login_url)
         self.driver.maximize_window()
         self.screenshot()
@@ -50,12 +51,39 @@ class yqapp:
         self.driver.find_element_by_id('code').send_keys(captcha)
         # self.driver.find_element_by_id('index_login_btn').click()
 
+    def check_login(self):
+        self.driver.implicitly_wait(10)
+        self.driver.find_element_by_id('errormsg')
+
+        if element.is_displayed():
+            return False
+        else:
+            return True
+
+    def clock_in(self):
         self.driver.implicitly_wait(60)
-        print(self.driver.page_source)
         wait.until(
             EC.text_to_be_present_in_element((By.ID, 'app'), '每日打卡')
         )
         self.screenshot()
+
+        # 早上
+        self.driver.find_element(By.CSS_SELECTOR, ".sdys_div:nth-child(2)").click()
+
+        # 本人健康状态
+        self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".emapm-item:nth-child(2)")))
+        try:
+            self.driver.find_element(By.CSS_SELECTOR, ".emapm-item:nth-child(2)").click()
+        except Exception:
+            pass
+
+        self.driver.find_element(By.CSS_SELECTOR, ".mint-cell:nth-child(1) .mint-radiobox-row").click()
+
+        try:
+            self.driver.find_element(By.CSS_SELECTOR, ".emapm-item:nth-child(2) .mint-button").click()
+        except Exception:
+            pass
+        # 本人健康状态
 
     def _get_captcha(self):
         # 在同一个session内刷新验证码，使其可以被request捕获
@@ -128,15 +156,16 @@ class yqapp:
 
 
 def main():
-    # yq = yqapp(sys.argv[1], sys.argv[2])
-    # yq.login()
-    # if not yq.check_login():
-    #     yq.login()
-    #     if not yq.check_login():
-    #         exit(-1)
-    # yq.clock_in()
-    # yq.close()
-    exit(-1)
+    yq = yqapp(sys.argv[1], sys.argv[2])
+
+    yq.login()
+    if not yq.check_login():
+        yq.login()
+        if not yq.check_login():
+            exit(-1)
+
+    yq.clock_in()
+    yq.close()
 
 
 if __name__ == "__main__":
