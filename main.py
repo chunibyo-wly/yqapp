@@ -16,14 +16,14 @@ class yqapp:
         self.username = username
         self.password = password
 
-        # 第三方登录页面
+        self.home_page = r"http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/*default/index.do#/addmrbpa/mrdk"
         self.login_url = r"http://rsfw.cug.edu.cn/amp-auth-adapter/login?service=http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/*default/index.do"
         self.captcha_url = r"http://sfrz.cug.edu.cn/tpass/code"
 
         # 创建chrome启动选项
         self.chrome_options = webdriver.ChromeOptions()
         # 指定chrome启动类型为headless 并且禁用gpu
-        self.chrome_options.add_argument('--headless')
+        # self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--disable-gpu')
         self.chrome_options.add_argument('--incognito')
         self.driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=self.chrome_options)
@@ -70,74 +70,46 @@ class yqapp:
         )
         self.screenshot()
 
-        # 早上
-        self.driver.find_element(By.CSS_SELECTOR, ".sdys_div:nth-child(2)").click()
+        self.driver.find_element(By.XPATH, "//span[contains(.,'待完成')]").click()
 
         # Step 1: 本人健康状态
-        element = (By.XPATH, "//a[contains(.,'本人健康状态')]")
-        self.wait.until(EC.presence_of_element_located(element))
-        self.driver.find_element(*element).click()
-
-        element = (By.XPATH, "//div[@class='emapm-item'][2]//label[contains(.,'正常')]")
-        self.wait.until(EC.presence_of_element_located(element))
-        self.driver.find_element(*element).click()
-
-        element = (By.XPATH, "//div[@class='emapm-item'][2]//button[contains(.,'返回')]")
-        try:
-            self.driver.find_element(*element).click()
-        except Exception:
-            pass
+        self._complete('本人健康状态', '正常', 2)
         # Step 1: 本人健康状态
 
         # Step 2: 体温
-        element = (By.XPATH, "//a[contains(.,'体温')]")
-        self.wait.until(EC.presence_of_element_located(element))
-        self.driver.find_element(*element).click()
-
-        element = (By.XPATH, "//div[@class='emapm-item'][3]//label[contains(.,'否')]")
-        self.wait.until(EC.presence_of_element_located(element))
-        self.driver.find_element(*element).click()
-
-        element = (By.XPATH, "//div[@class='emapm-item'][3]//button[contains(.,'返回')]")
-        try:
-            self.driver.find_element(*element).click()
-        except Exception:
-            pass
+        self._complete('体温', '否', 3)
         # Step 2: 体温
 
         # Step 3: 家庭成员
-        element = (By.XPATH, "//a[contains(.,'家庭成员')]")
-        self.wait.until(EC.presence_of_element_located(element))
-        self.driver.find_element(*element).click()
-
-        element = (By.XPATH, "//div[@class='emapm-item'][6]//label[contains(.,'正常')]")
-        self.wait.until(EC.presence_of_element_located(element))
-        self.driver.find_element(*element).click()
-
-        element = (By.XPATH, "//div[@class='emapm-item'][6]//button[contains(.,'返回')]")
-        try:
-            self.driver.find_element(*element).click()
-        except Exception:
-            pass
+        self._complete('家庭成员', '正常', 6)
         # Step 3: 家庭成员
 
         # Step 4: 心理状况
-        element = (By.XPATH, "//a[contains(.,'心理状况')]")
-        self.wait.until(EC.presence_of_element_located(element))
-        self.driver.find_element(*element).click()
-
-        element = (By.XPATH, "//div[@class='emapm-item'][7]//label[contains(.,'无')]")
-        self.wait.until(EC.presence_of_element_located(element))
-        self.driver.find_element(*element).click()
-
-        element = (By.XPATH, "//div[@class='emapm-item'][7]//button[contains(.,'返回')]")
-        try:
-            self.driver.find_element(*element).click()
-        except Exception:
-            pass
+        self._complete('心理状况', '无', 7)
         # Step 4: 心理状况
 
         time.sleep(60)
+
+    def _check_clock_in(self):
+        self.driver.get("http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/*default/index.do#/addmrbpa/mrdk")
+        pass
+
+    def _complete(self, title, content, number):
+        print(title)
+
+        element = (By.XPATH, "//a[contains(.,'{}')]".format(title))
+        self.wait.until(EC.presence_of_element_located(element))
+        self.driver.find_element(*element).click()
+
+        element = (By.XPATH, "//div[@class='emapm-item'][{}]//label[contains(.,'{}')]".format(number, content))
+        self.wait.until(EC.presence_of_element_located(element))
+        self.driver.find_element(*element).click()
+
+        element = (By.XPATH, "//div[@class='emapm-item'][{}]//button[contains(.,'返回')]".format(number))
+        try:
+            self.driver.find_element(*element).click()
+        except Exception:
+            pass
 
     def _get_captcha(self):
         # 在同一个session内刷新验证码，使其可以被request捕获
