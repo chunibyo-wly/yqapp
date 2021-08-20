@@ -53,7 +53,10 @@ class yqapp:
 
     def check_login(self):
         self.driver.implicitly_wait(10)
-        self.driver.find_element_by_id('errormsg')
+        try:
+            element = self.driver.find_element_by_id('errormsg')
+        except Exception:
+            return True
 
         if element.is_displayed():
             return False
@@ -62,7 +65,7 @@ class yqapp:
 
     def clock_in(self):
         self.driver.implicitly_wait(60)
-        wait.until(
+        self.wait.until(
             EC.text_to_be_present_in_element((By.ID, 'app'), '每日打卡')
         )
         self.screenshot()
