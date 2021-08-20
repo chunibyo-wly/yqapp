@@ -23,7 +23,7 @@ class yqapp:
         # 创建chrome启动选项
         self.chrome_options = webdriver.ChromeOptions()
         # 指定chrome启动类型为headless 并且禁用gpu
-        # self.chrome_options.add_argument('--headless')
+        self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--disable-gpu')
         self.chrome_options.add_argument('--incognito')
         self.driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=self.chrome_options)
