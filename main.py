@@ -1,6 +1,5 @@
 import io
 import sys
-import time
 
 import pytesseract
 import requests
@@ -54,14 +53,10 @@ class yqapp:
     def check_login(self):
         self.driver.implicitly_wait(60)
         try:
-            element = self.driver.find_element_by_id('errormsg')
+            self.driver.find_element(By.XPATH, "//span[contains(.,'待完成')]")
+            return True
         except Exception:
-            return True
-
-        if element.is_displayed():
             return False
-        else:
-            return True
 
     def clock_in(self):
         self.driver.implicitly_wait(60)
@@ -70,29 +65,45 @@ class yqapp:
         )
         self.screenshot()
 
-        self.driver.find_element(By.XPATH, "//span[contains(.,'待完成')]").click()
+        result_list = self.driver.find_elements(By.XPATH, "//span[contains(.,'待完成')]")
+        for result in result_list:
+            if result.is_displayed():
+                result.click()
 
-        # Step 1: 本人健康状态
-        self._complete('本人健康状态', '正常', 2)
-        # Step 1: 本人健康状态
+                # Step 1: 本人健康状态
+                self._complete('本人健康状态', '正常', 2)
+                # Step 1: 本人健康状态
 
-        # Step 2: 体温
-        self._complete('体温', '否', 3)
-        # Step 2: 体温
+                # Step 2: 体温
+                self._complete('体温', '否', 3)
+                # Step 2: 体温
 
-        # Step 3: 家庭成员
-        self._complete('家庭成员', '正常', 6)
-        # Step 3: 家庭成员
+                # Step 3: 家庭成员
+                self._complete('家庭成员', '正常', 6)
+                # Step 3: 家庭成员
 
-        # Step 4: 心理状况
-        self._complete('心理状况', '无', 7)
-        # Step 4: 心理状况
+                # Step 4: 心理状况
+                self._complete('心理状况', '无', 7)
+                # Step 4: 心理状况
 
-        time.sleep(60)
+                element = (By.XPATH, "//button[contains(.,'提交')]")
+                self.wait.until(EC.element_to_be_clickable(element))
+                self.driver.find_element(*element).click()
+                break
 
-    def _check_clock_in(self):
-        self.driver.get("http://yqapp.cug.edu.cn/xsfw/sys/swmxsyqxxsjapp/*default/index.do#/addmrbpa/mrdk")
-        pass
+    def check_clock_in(self):
+        self.driver.get(self.home_page)
+
+        self.driver.implicitly_wait(60)
+        self.wait.until(
+            EC.text_to_be_present_in_element((By.ID, 'app'), '每日打卡')
+        )
+
+        result_list = self.driver.find_elements(By.XPATH, "//span[contains(.,'待完成')]")
+        for result in result_list:
+            if result.is_displayed():
+                return False
+        return True
 
     def _complete(self, title, content, number):
         print(title)
@@ -120,7 +131,7 @@ class yqapp:
                 session_id = cookie['value']
                 break
 
-        print(session_id)
+        # print(session_id)
         headers = {
             'Cookie': 'JSESSIONID={};'.format(session_id)
         }
@@ -184,13 +195,24 @@ class yqapp:
 def main():
     yq = yqapp(sys.argv[1], sys.argv[2])
 
-    yq.login()
-    if not yq.check_login():
+    for i in range(4):
         yq.login()
-        if not yq.check_login():
+        if yq.check_login():
+            print("登录成功")
+            break
+        elif i == 3:
+            print("登录失败")
             exit(-1)
 
-    yq.clock_in()
+    for i in range(4):
+        yq.clock_in()
+        if yq.check_clock_in():
+            print("无未打卡项目")
+            break
+        elif i == 3:
+            print("打卡失败")
+            exit(-1)
+
     yq.close()
 
 
