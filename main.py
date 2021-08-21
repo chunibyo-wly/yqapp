@@ -31,7 +31,7 @@ class yqapp:
         self.driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=self.chrome_options)
 
         self.driver.set_page_load_timeout(120)
-        self.wait = WebDriverWait(self.driver, timeout=120)
+        self.wait = WebDriverWait(self.driver, timeout=150)
         # self.driver.implicitly_wait(60)
 
         self.cookies = ""
@@ -70,13 +70,24 @@ class yqapp:
     def clock_in(self):
         self.driver.get(self.home_page)
 
-        self.wait.until(EC.visibility_of_element_located((By.XPATH, "//span[contains(.,'每日打卡')]")))
+        self.wait.until(EC.visibility_of_any_elements_located((By.XPATH, "//span[contains(.,'每日打卡')]")))
+        self.wait.until(EC.visibility_of_any_elements_located(
+            (By.XPATH, "//span[contains(.,'待完成') or contains(., '已完成') or contains(., '未开放')]")))
         self.screenshot()
 
         result_list = self.driver.find_elements(By.XPATH, "//span[contains(.,'待完成') or contains(., '已完成')]")
-        # print(len(result_list))
-        for result in result_list:
+        number = len(result_list)
+        print(number)
+
+        for i in range(number):
+            self.wait.until(EC.visibility_of_any_elements_located(
+                (By.XPATH, "//span[contains(.,'待完成') or contains(., '已完成') or contains(., '未开放')]")))
+
+            result_list = self.driver.find_elements(By.XPATH, "//span[contains(.,'待完成') or contains(., '已完成')]")
+            result = result_list[i]
             if result.is_displayed():
+                print("进入打卡项目前状态：", result.text)
+
                 result.click()
 
                 # Step 1: 本人健康状态
@@ -98,12 +109,22 @@ class yqapp:
                 element = (By.XPATH, "//button[contains(.,'提交')]")
                 self.wait.until(EC.element_to_be_clickable(element))
                 self.driver.find_element(*element).click()
+
+                self.wait.until(EC.url_contains("success"))
+                element = (By.XPATH, "//button[contains(.,'返回')]")
+                try:
+                    self.wait.until(EC.element_to_be_clickable(element))
+                    self.driver.find_element(*element).click()
+                except Exception:
+                    pass
                 print("================\n")
-                break
 
     def check_clock_in(self):
         self.driver.get(self.home_page)
-        self.wait.until(EC.visibility_of_element_located((By.XPATH, "//span[contains(.,'每日打卡')]")))
+
+        self.wait.until(EC.visibility_of_any_elements_located((By.XPATH, "//span[contains(.,'每日打卡')]")))
+        self.wait.until(EC.visibility_of_any_elements_located(
+            (By.XPATH, "//span[contains(.,'待完成') or contains(., '已完成') or contains(., '未开放')]")))
 
         result_list = self.driver.find_elements(By.XPATH, "//span[contains(.,'待完成')]")
         for result in result_list:
