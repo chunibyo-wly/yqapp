@@ -21,6 +21,7 @@ jobs:
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
       - name: Install dependencies
         run: |
+          sudo apt-get install ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy
           sudo apt install tesseract-ocr
           sudo apt install libtesseract-dev
           pip install -r requirements.txt
