@@ -85,12 +85,12 @@ class yqapp:
 
             result_list = self.driver.find_elements(By.XPATH, "//span[contains(.,'待完成') or contains(., '已完成')]")
             self.screenshot()
-            print(self.driver.get_screenshot_as_base64())
-            print(len([r for r in result_list if r.is_displayed()]))
+            # print(self.driver.get_screenshot_as_base64())
+            # print(len([r for r in result_list if r.is_displayed()]))
             result = result_list[i]
             if result.is_displayed():
                 print("进入打卡项目前状态：", result.text)
-                exit(-1)
+                # exit(-1)
 
                 result.click()
 
