@@ -8,6 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import NoSuchElementException
 
 
 class yqapp:
@@ -28,7 +29,7 @@ class yqapp:
         self.driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=self.chrome_options)
 
         self.driver.set_page_load_timeout(120)
-        self.wait = WebDriverWait(self.driver, timeout=60)
+        self.wait = WebDriverWait(self.driver, timeout=120)
         # self.driver.implicitly_wait(60)
 
         self.cookies = ""
@@ -65,9 +66,9 @@ class yqapp:
             return False
 
     def clock_in(self):
-        self.wait.until(
-            EC.text_to_be_present_in_element((By.ID, 'app'), '每日打卡')
-        )
+        self.driver.get(self.home_page)
+
+        self.wait.until(EC.visibility_of_element_located((By.XPATH, "//span[contains(.,'每日打卡')]")))
         self.screenshot()
 
         result_list = self.driver.find_elements(By.XPATH, "//span[contains(.,'待完成')]")
@@ -99,10 +100,7 @@ class yqapp:
 
     def check_clock_in(self):
         self.driver.get(self.home_page)
-
-        self.wait.until(
-            EC.text_to_be_present_in_element((By.ID, 'app'), '每日打卡')
-        )
+        self.wait.until(EC.visibility_of_element_located((By.XPATH, "//span[contains(.,'每日打卡')]")))
 
         result_list = self.driver.find_elements(By.XPATH, "//span[contains(.,'待完成')]")
         for result in result_list:
