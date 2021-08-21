@@ -31,7 +31,7 @@ class yqapp:
         self.driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=self.chrome_options)
 
         self.driver.set_page_load_timeout(120)
-        self.wait = WebDriverWait(self.driver, timeout=150)
+        self.wait = WebDriverWait(self.driver, timeout=180)
         # self.driver.implicitly_wait(60)
 
         self.cookies = ""
@@ -89,8 +89,10 @@ class yqapp:
             # print(len([r for r in result_list if r.is_displayed()]))
             result = result_list[i]
             if result.is_displayed():
+                print("\n================")
                 print("进入打卡项目前状态：", result.text)
-                # exit(-1)
+                if result.text == '已完成':
+                    continue
 
                 result.click()
 
@@ -121,7 +123,6 @@ class yqapp:
                     self.driver.find_element(*element).click()
                 except Exception:
                     pass
-                print("================\n")
 
     def check_clock_in(self):
         self.driver.get(self.home_page)
