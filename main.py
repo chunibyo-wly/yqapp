@@ -60,7 +60,7 @@ class yqapp:
         try:
             self.wait.until(EC.visibility_of_element_located((By.XPATH, "//span[contains(.,'每日打卡')]")))
             return True
-        except NoSuchElementExeception:
+        except NoSuchElementException:
             self.screenshot()
             print("check_login", self.driver.current_url)
             return False
