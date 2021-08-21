@@ -1,5 +1,7 @@
 import io
 import sys
+import cv2
+import numpy as np
 
 import pytesseract
 import requests
@@ -186,7 +188,14 @@ class yqapp:
         # 二值化并且增加 padding 使识别更准确
         bi_im = im.convert("L").point(lambda p: p > threshold and 255)
         bi_im = self._add_margin(bi_im, 0, 0, 0, int(bi_im.size[0] * 0.1), (255, 255, 255))
-        bi_im.save("temp.png")
+        bi_im.save("temp1.png")
+
+        kernel = np.ones((3, 3), np.uint8)
+        dilate_im = cv2.dilate(np.array(bi_im), kernel, iterations=1)
+        erode_im = cv2.erode(np.array(dilate_im), kernel, iterations=1)
+        bi_im = Image.fromarray(erode_im)
+
+        bi_im.save("temp2.png")
         result = pytesseract.image_to_string(bi_im,
                                              config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
 
