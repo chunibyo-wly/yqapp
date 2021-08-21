@@ -84,6 +84,8 @@ class yqapp:
                 (By.XPATH, "//span[contains(.,'待完成') or contains(., '已完成') or contains(., '未开放')]")))
 
             result_list = self.driver.find_elements(By.XPATH, "//span[contains(.,'待完成') or contains(., '已完成')]")
+            self.screenshot()
+            print(len([r for r in result_list if r.is_displayed()]))
             result = result_list[i]
             if result.is_displayed():
                 print("进入打卡项目前状态：", result.text)
