@@ -26,8 +26,10 @@ class yqapp:
         self.chrome_options.add_argument('--disable-gpu')
         self.chrome_options.add_argument('--incognito')
         self.driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=self.chrome_options)
+
         self.driver.set_page_load_timeout(120)
-        self.wait = WebDriverWait(self.driver, timeout=10)
+        self.wait = WebDriverWait(self.driver, timeout=60)
+        # self.driver.implicitly_wait(60)
 
         self.cookies = ""
         self.screenshot_number = 0
@@ -38,6 +40,8 @@ class yqapp:
 
     def login(self):
         self.driver.get(self.login_url)
+        self.wait.until(EC.element_to_be_clickable((By.ID, 'un')))
+
         self.driver.maximize_window()
         self.screenshot()
 
@@ -52,15 +56,15 @@ class yqapp:
         # self.driver.find_element_by_id('index_login_btn').click()
 
     def check_login(self):
-        self.driver.implicitly_wait(60)
         try:
-            self.driver.find_element(By.XPATH, "//span[contains(.,'待完成')]")
+            self.wait.until(EC.visibility_of_element_located((By.XPATH, "//span[contains(.,'每日打卡')]")))
             return True
-        except Exception:
+        except NoSuchElementExeception:
+            self.screenshot()
+            print("check_login", self.driver.current_url)
             return False
 
     def clock_in(self):
-        self.driver.implicitly_wait(60)
         self.wait.until(
             EC.text_to_be_present_in_element((By.ID, 'app'), '每日打卡')
         )
@@ -95,7 +99,6 @@ class yqapp:
     def check_clock_in(self):
         self.driver.get(self.home_page)
 
-        self.driver.implicitly_wait(60)
         self.wait.until(
             EC.text_to_be_present_in_element((By.ID, 'app'), '每日打卡')
         )
