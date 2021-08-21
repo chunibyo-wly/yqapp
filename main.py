@@ -90,8 +90,9 @@ class yqapp:
             result = result_list[i]
             if result.is_displayed():
                 print("\n================")
-                print("进入打卡项目前状态：", result.text)
+                print("进入打卡项目前状态：", result.find_element_by_xpath('..').text.replace('\n', ' '))
                 if result.text == '已完成':
+                    print("未进入该项目")
                     continue
 
                 result.click()
@@ -242,6 +243,8 @@ def main():
         elif i == 3:
             print("登录失败")
             exit(-1)
+
+    print("\n\n\n")
 
     for i in range(4):
         yq.clock_in()
