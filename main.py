@@ -87,6 +87,7 @@ class yqapp:
             result = result_list[i]
             if result.is_displayed():
                 print("进入打卡项目前状态：", result.text)
+                exit(-1)
 
                 result.click()
 
