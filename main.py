@@ -71,6 +71,7 @@ class yqapp:
         self.screenshot()
 
         result_list = self.driver.find_elements(By.XPATH, "//span[contains(.,'待完成')]")
+        print(len(result_list))
         for result in result_list:
             if result.is_displayed():
                 result.click()
