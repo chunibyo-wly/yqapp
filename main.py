@@ -71,8 +71,8 @@ class yqapp:
         self.wait.until(EC.visibility_of_element_located((By.XPATH, "//span[contains(.,'每日打卡')]")))
         self.screenshot()
 
-        result_list = self.driver.find_elements(By.XPATH, "//span[contains(.,'待完成')]")
-        print(len(result_list))
+        result_list = self.driver.find_elements(By.XPATH, "//span[contains(.,'待完成') or contains(., '已完成')]")
+        # print(len(result_list))
         for result in result_list:
             if result.is_displayed():
                 result.click()
@@ -96,6 +96,7 @@ class yqapp:
                 element = (By.XPATH, "//button[contains(.,'提交')]")
                 self.wait.until(EC.element_to_be_clickable(element))
                 self.driver.find_element(*element).click()
+                print("================\n")
                 break
 
     def check_clock_in(self):
